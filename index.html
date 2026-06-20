@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f6f8fb">
-<title>藥學國考｜隨機藥物分類卡</title>
+<title>藥學國考｜隨機藥物分類卡 v7</title>
 <style>
 :root{
   --navy:#17365d;--blue:#1f4e78;--sky:#dcecf8;--pale:#f4f8fb;--ink:#17212b;
@@ -296,6 +296,162 @@ html,body{
   .mnemonic-editor textarea{font-size:16px}
 }
 
+
+/* v7：手機與桌機分流 */
+.mobile-only{display:none}
+
+@media(max-width:820px){
+  html{background:#f5f7fa}
+  body{
+    background:#f5f7fa !important;
+    color:#17212b !important;
+    padding-bottom:calc(112px + env(safe-area-inset-bottom));
+  }
+  .shell{
+    width:100%;max-width:none;margin:0;padding:0 12px 32px;
+  }
+
+  /* 手機首頁只保留搜尋、藥物方格與懸浮操作 */
+  .mobile-only{display:block}
+  .topbar,.stats,.panel,.side-panel,.footer-note{display:none !important}
+  .quiz-layout{display:block;margin:0}
+  .card-wrap{width:100%;padding:0}
+  .mobile-home{
+    position:sticky;top:0;z-index:12;
+    margin:0 -12px 12px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;
+    background:rgba(245,247,250,.96);
+    border-bottom:1px solid #dbe3ea;
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+  }
+  .mobile-search-shell{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;
+    max-width:680px;margin:auto;
+  }
+  .mobile-search-shell input{
+    min-width:0;width:100%;height:48px;border:1px solid #b9c7d3;border-radius:15px;
+    padding:0 14px;background:#fff;color:#17212b;font-size:16px;outline:none;
+    box-shadow:0 4px 14px rgba(23,54,93,.06);
+  }
+  .mobile-search-shell input:focus{
+    border-color:#3979aa;box-shadow:0 0 0 3px rgba(57,121,170,.15)
+  }
+  .mobile-search-shell button{
+    height:48px;border:0;border-radius:15px;padding:0 17px;
+    background:#1f4e78;color:#fff;font-weight:900;
+    box-shadow:0 4px 14px rgba(23,54,93,.15)
+  }
+  .mobile-search-note{
+    max-width:680px;margin:6px auto 0;color:#64748b;text-align:center;font-size:12px
+  }
+
+  .flashcard{
+    width:100%;border-radius:24px;border:1px solid #d4dee7;
+    background:#fff !important;color:#17212b !important;
+    box-shadow:0 16px 40px rgba(23,54,93,.14);
+    overflow:hidden;
+  }
+  .flashcard:not(.revealed){
+    aspect-ratio:1/1;min-height:0;max-height:none;
+  }
+  .flashcard:not(.revealed) .card-front{
+    min-height:100%;height:100%;padding:24px 18px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .flashcard.revealed{
+    min-height:0;aspect-ratio:auto;overflow:visible;
+  }
+  .flashcard.revealed .card-back{
+    display:block;padding:18px 14px 34px;
+  }
+
+  .card-head,
+  .question-label,
+  .front-sub,
+  .answer-input,
+  .front-buttons,
+  .card-front .hint-box{
+    display:none !important;
+  }
+  .drug-name{
+    width:100%;font-size:clamp(34px,11vw,58px) !important;
+    line-height:1.12;text-align:center;color:#17365d !important;
+    padding:12px;word-break:break-word;overflow-wrap:anywhere;
+  }
+
+  .section-title{
+    margin:23px 0 10px;font-size:18px !important;color:#17365d !important;
+    padding-bottom:7px;border-bottom:2px solid #d8e7f2;
+  }
+  .section-title:first-of-type{margin-top:0}
+  .tree-path,.knowledge-card,.exam-card,.mnemonic-editor{
+    border-radius:16px !important;box-shadow:none !important;
+  }
+  .tree-path{padding:13px 12px}
+  .tree-ch{font-size:15px}
+  .tree-line{font-size:15px !important;line-height:1.65}
+  .knowledge-card{padding:12px}
+  .exam-card{padding:13px 11px;margin:12px 0}
+  .exam-meta{gap:5px}
+  .exam-link{width:100%;margin:4px 0 0;text-align:right}
+  .exam-stem{font-size:16px !important;line-height:1.7}
+  .exam-option{
+    padding:12px 10px;font-size:15px;border-radius:13px
+  }
+  .option-letter{flex-basis:30px;height:30px}
+  .answer-instruction{
+    font-size:12px;text-align:center;margin-top:9px
+  }
+  .exam-answer-controls{display:none !important}
+  .exam-answer.hidden-answer{
+    display:none;margin-top:10px;padding:11px;border-radius:11px;background:#f4f8fb
+  }
+  .exam-card.answer-shown .exam-answer.hidden-answer{display:block}
+  .mnemonic-editor textarea{
+    min-height:96px;font-size:16px;line-height:1.55
+  }
+  .mnemonic-row{display:block}
+  .mnemonic-note{margin-bottom:9px;font-size:12px}
+  #saveMnemonicBtn{width:100%;min-height:45px}
+  .grade-bar,.grade-result{display:none !important}
+  .empty{padding:55px 16px}
+
+  /* 側邊懸浮提示／下一題 */
+  .mobile-fab{
+    position:fixed;right:12px;bottom:calc(18px + env(safe-area-inset-bottom));
+    z-index:18;display:flex;flex-direction:column;gap:10px;
+  }
+  .mobile-fab-btn{
+    width:66px;min-height:64px;border:0;border-radius:20px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    color:#fff;font-size:12px;font-weight:900;
+    box-shadow:0 10px 26px rgba(23,54,93,.24);
+  }
+  .mobile-fab-icon{font-size:22px;line-height:1;font-weight:900}
+  .mobile-fab-hint{background:#6b4e16}
+  .mobile-fab-next{background:#1f4e78}
+  .mobile-fab-btn:active{transform:scale(.96)}
+
+  .mobile-hint-toast{
+    position:fixed;left:12px;right:90px;bottom:calc(22px + env(safe-area-inset-bottom));
+    z-index:19;display:none;padding:14px 40px 14px 14px;
+    border:1px solid #e0c874;border-radius:16px;background:#fff8dc;color:#6f5107;
+    box-shadow:0 12px 32px rgba(70,52,7,.2);
+    font-size:14px;line-height:1.6;white-space:pre-wrap;
+  }
+  .mobile-hint-toast.show{display:block}
+  .mobile-hint-toast button{
+    position:absolute;right:8px;top:7px;width:28px;height:28px;border:0;border-radius:50%;
+    background:transparent;color:#6f5107;font-size:22px;line-height:1
+  }
+
+  #startupNotice,#runtimeError{margin-left:12px;margin-right:12px}
+}
+
+@media(min-width:821px){
+  .mobile-only{display:none !important}
+}
+
 </style>
 </head>
 <body>
@@ -307,6 +463,17 @@ html,body{
 <div id="runtimeError" class="runtime-error"></div>
 
 <div class="shell">
+
+  <section class="mobile-home mobile-only" aria-label="手機版快速複習">
+    <div class="mobile-search-shell">
+      <input id="mobileSearchInput" list="mobileDrugSuggestions" type="search"
+             placeholder="搜尋藥物，例如 warfarin" autocomplete="off" autocapitalize="none" spellcheck="false">
+      <button id="mobileSearchBtn" type="button" aria-label="搜尋藥物">搜尋</button>
+      <datalist id="mobileDrugSuggestions"></datalist>
+    </div>
+    <div class="mobile-search-note" id="mobileSearchNote">點擊藥物方格即可翻牌</div>
+  </section>
+
   <header class="topbar">
     <div class="brand">
       <h1>藥學國考｜隨機藥物分類卡</h1>
@@ -474,6 +641,20 @@ html,body{
   <div class="footer-note">學習紀錄儲存在此瀏覽器的 localStorage；單一 HTML 可離線使用，官方原題連結需網路。</div>
 </div>
 
+
+<div class="mobile-fab mobile-only" aria-label="手機版快速操作">
+  <button id="mobileHintBtn" class="mobile-fab-btn mobile-fab-hint" type="button" aria-label="顯示提示">
+    <span class="mobile-fab-icon">?</span><span>提示</span>
+  </button>
+  <button id="mobileNextBtn" class="mobile-fab-btn mobile-fab-next" type="button" aria-label="下一題">
+    <span class="mobile-fab-icon">→</span><span>下一題</span>
+  </button>
+</div>
+<div id="mobileHintToast" class="mobile-hint-toast mobile-only" role="status" aria-live="polite">
+  <button id="mobileHintClose" type="button" aria-label="關閉提示">×</button>
+  <div id="mobileHintText"></div>
+</div>
+
 <div class="modal" id="dataModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-box">
     <div class="modal-head">
@@ -484,7 +665,7 @@ html,body{
     <p>本工具保留原始 Excel 的 1,499 筆「藥物 × 分類擺放」，合併後共有 1,190 個不重複藥名。你可在兩種模式間切換；同一藥物若跨章節或跨用途，會顯示多條分類路徑。翻牌後另提供共同的國考高頻個論、酸鹼／電解質與部分藥化結構提示。</p>
     <h3>考古題資料</h3>
     <p>整理範圍為 2022–2026 年（截至 2026 年第一次考試）的 9 份官方藥師（一）試題，共 720 題。第 1–40 題標為藥理學，第 41–80 題標為藥物化學；答案已納入官方更正。每題會先列出全部 A–D 選項，正解預設隱藏，須自行點擊顯示。</p>
-    <p>考題與藥物的連結以藥名、組合成分與常見縮寫比對。若藥名沒有直接出現，系統會提供「同次分類 → 同大分類 → 同章節」的延伸題。這是快速複習索引，不是逐題完整解析；可先點選自己的答案，再按「顯示正解」核對。遇到結構圖題，請開啟官方原題查看圖形。</p>
+    <p>考題與藥物的連結以藥名、組合成分與常見縮寫比對。若藥名沒有直接出現，系統會提供「同次分類 → 同大分類 → 同章節」的延伸題。這是快速複習索引，不是逐題完整解析；桌機版可先點選自己的答案，再按「顯示正解」核對；手機版點選選項後會直接顯示正解。遇到結構圖題，請開啟官方原題查看圖形。</p>
     <h3>官方試題</h3>
     <div class="paper-grid" id="paperGrid"></div>
     <h3>共同資訊與個人口訣</h3><p>共同高頻資訊寫在網站檔案中，所有使用者都會看到；「我的口訣」則只存於各自瀏覽器的 localStorage，不會互相覆蓋。下次抽到同一藥物時，按提示即可同時看到共同字尾提示與自己的口訣。</p><h3>自我評分</h3>
@@ -574,6 +755,45 @@ function saveStore(){
 function escapeHtml(v){
   return String(v == null ? "" : v).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
+
+function isMobileLayout(){
+  return window.matchMedia && window.matchMedia("(max-width: 820px)").matches;
+}
+function hideMobileHint(){
+  var toast=$("mobileHintToast");
+  if(toast)toast.classList.remove("show");
+}
+function showMobileHint(text){
+  var toast=$("mobileHintToast");
+  var target=$("mobileHintText");
+  if(!toast || !target)return;
+  target.textContent=text;
+  toast.classList.add("show");
+}
+function buildMobileDrugSuggestions(){
+  var list=$("mobileDrugSuggestions");
+  if(!list)return;
+  list.innerHTML=DATA.unique.map(function(item){
+    return '<option value="'+escapeHtml(item.drug)+'"></option>';
+  }).join("");
+}
+function mobileSearchDrug(){
+  var input=$("mobileSearchInput");
+  if(!input)return;
+  var q=input.value.trim().toLowerCase();
+  if(!q)return;
+  var cards=getCards();
+  var exact=cards.find(function(c){return c.base.drug.toLowerCase()===q;});
+  var partial=cards.find(function(c){return c.base.drug.toLowerCase().indexOf(q)!==-1;});
+  var found=exact||partial;
+  if(!found){
+    $("mobileSearchNote").textContent="找不到此藥物，請嘗試 generic name 的一部分。";
+    return;
+  }
+  $("mobileSearchNote").textContent="已找到 "+found.base.drug+"；點擊方格即可翻牌";
+  nextCard(found);
+}
+
 function getCards(){
   if(els.mode.value==="placement"){
     return DATA.placements.map((p,i)=>({kind:"placement", id:p.id, index:i, base:DATA.unique[p.u], placement:p.placement}));
@@ -637,6 +857,7 @@ function weightedPick(cards){
   return candidates[candidates.length-1];
 }
 function nextCard(specific=null){
+  hideMobileHint();
   const pool=eligibleCards();
   updatePool(pool);
   if(!pool.length){
@@ -660,6 +881,7 @@ function renderFront(){
   els.drug.textContent=current.base.drug;
   const pool=eligibleCards();
   els.counter.textContent=`隨機卡｜目前題庫 ${pool.length} 張`;
+  if($("mobileSearchNote"))$("mobileSearchNote").textContent="點擊藥物方格即可翻牌";
   updateStar();
 }
 
@@ -724,6 +946,7 @@ function renderKnowledge(){
 function reveal(){
   if(!current || revealed)return;
   revealed=true;
+  hideMobileHint();
   const p=progressFor(current.id);
   p.seen=(p.seen||0)+1;p.last=Date.now();saveStore();
   els.flash.classList.add("revealed");
@@ -735,6 +958,11 @@ function reveal(){
   renderMnemonicEditor();
   renderExam();
   updateProgress();
+  if(isMobileLayout()){
+    setTimeout(function(){
+      els.flash.scrollIntoView({behavior:"smooth",block:"start"});
+    },30);
+  }
 }
 function renderClassifications(){
   const paths=pathsFor(current);
@@ -844,8 +1072,10 @@ function showHint(){
   else lines.push("共同字尾提示：目前沒有設定。");
   if(mnemonic)lines.push("我的口訣："+mnemonic);
   else lines.push("我的口訣：尚未建立（翻牌後可新增）。");
-  els.hint.textContent=lines.join("\n");
-  els.hint.style.display="block";
+  const text=lines.join("\n");
+  els.hint.textContent=text;
+  if(isMobileLayout())showMobileHint(text);
+  else els.hint.style.display="block";
 }
 function grade(status){
   if(!current || !revealed || currentGraded)return;
@@ -941,8 +1171,12 @@ $("examArea").addEventListener("click",e=>{
   if(option){
     const card=option.closest(".exam-card");
     if(card.classList.contains("answer-shown"))return;
-    card.querySelectorAll(".exam-option").forEach(o=>o.classList.remove("selected"));
+    card.querySelectorAll(".exam-option").forEach(function(o){o.classList.remove("selected");});
     option.classList.add("selected");
+    if(isMobileLayout()){
+      const toggle=card.querySelector(".answer-toggle");
+      if(toggle)toggleExamAnswer(toggle);
+    }
     return;
   }
   const toggle=e.target.closest(".answer-toggle");
@@ -954,6 +1188,15 @@ els.flash.addEventListener("click",e=>{
 $("dataInfoBtn").addEventListener("click",()=>$("dataModal").classList.add("open"));
 $("closeModalBtn").addEventListener("click",()=>$("dataModal").classList.remove("open"));
 $("dataModal").addEventListener("click",e=>{if(e.target===$("dataModal"))$("dataModal").classList.remove("open")});
+
+if($("mobileSearchBtn"))$("mobileSearchBtn").addEventListener("click",mobileSearchDrug);
+if($("mobileSearchInput"))$("mobileSearchInput").addEventListener("keydown",function(e){
+  if(e.key==="Enter"){e.preventDefault();mobileSearchDrug();}
+});
+if($("mobileHintBtn"))$("mobileHintBtn").addEventListener("click",showHint);
+if($("mobileNextBtn"))$("mobileNextBtn").addEventListener("click",function(){nextCard();});
+if($("mobileHintClose"))$("mobileHintClose").addEventListener("click",hideMobileHint);
+
 document.addEventListener("keydown",e=>{
   const tag=(document.activeElement ? document.activeElement.tagName : "");
   if(["INPUT","TEXTAREA","SELECT"].includes(tag))return;
@@ -967,6 +1210,7 @@ document.addEventListener("keydown",e=>{
 });
 try{
   buildChapters();
+  buildMobileDrugSuggestions();
   buildPapers();
   initStats();
   nextCard();
