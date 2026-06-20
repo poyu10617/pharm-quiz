@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f6f8fb">
-<title>藥學國考｜隨機藥物分類卡 v7</title>
+<title>藥學國考｜隨機藥物分類卡 v8</title>
 <style>
 :root{
   --navy:#17365d;--blue:#1f4e78;--sky:#dcecf8;--pale:#f4f8fb;--ink:#17212b;
@@ -452,6 +452,70 @@ html,body{
   .mobile-only{display:none !important}
 }
 
+
+/* v8：已儲存口訣總覽 */
+.saved-count-pill{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:24px;height:24px;padding:0 7px;border-radius:999px;
+  background:rgba(255,255,255,.2);color:inherit;font-size:12px;font-weight:900
+}
+.btn-white .saved-count-pill{background:#eaf2f8}
+.mnemonic-library-box{width:min(820px,100%)}
+.mnemonic-library-summary{margin-top:3px;color:var(--muted);font-size:13px}
+.mnemonic-library-tools{margin:16px 0 12px}
+.mnemonic-library-tools input{
+  width:100%;height:46px;border:1px solid #cbd5e1;border-radius:13px;
+  padding:0 13px;background:#fff;color:var(--ink);outline:none
+}
+.mnemonic-library-tools input:focus{
+  border-color:#5b9bd5;box-shadow:0 0 0 3px rgba(91,155,213,.16)
+}
+.mnemonic-library-list{display:grid;gap:10px}
+.mnemonic-library-item{
+  border:1px solid var(--line);border-radius:15px;padding:13px 14px;
+  background:#fbfdff
+}
+.mnemonic-library-item-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px
+}
+.mnemonic-library-drug{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color:var(--navy);font-size:17px;font-weight:900;overflow-wrap:anywhere
+}
+.mnemonic-library-text{
+  color:#334155;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere
+}
+.mnemonic-open-btn{
+  flex:0 0 auto;border:1px solid #cfe0ee;background:#eaf2f8;color:var(--blue);
+  border-radius:10px;padding:7px 10px;font-weight:900
+}
+.mnemonic-library-empty{
+  display:none;padding:32px 16px;text-align:center;color:var(--muted);
+  border:1px dashed #cbd5e1;border-radius:14px
+}
+.mobile-saved-mnemonics{display:none}
+
+@media(max-width:820px){
+  .mobile-saved-mnemonics{
+    display:flex;width:100%;max-width:680px;min-height:42px;margin:8px auto 0;
+    align-items:center;justify-content:center;gap:8px;
+    border:1px solid #c9d8e5;border-radius:13px;background:#fff;color:#1f4e78;
+    font-size:14px;font-weight:900;box-shadow:0 3px 10px rgba(23,54,93,.05)
+  }
+  .mobile-saved-mnemonics .saved-count-pill{
+    background:#eaf2f8;color:#1f4e78
+  }
+  .mnemonic-library-box{
+    width:100%;max-height:92vh;padding:18px 14px;
+    border-radius:20px 20px 0 0;margin-top:auto
+  }
+  #mnemonicLibraryModal{align-items:flex-end;padding:0}
+  .mnemonic-library-item{padding:12px}
+  .mnemonic-library-drug{font-size:16px}
+  .mnemonic-library-item-head{align-items:flex-start}
+  .mnemonic-open-btn{padding:7px 9px;font-size:13px}
+}
+
 </style>
 </head>
 <body>
@@ -472,6 +536,10 @@ html,body{
       <datalist id="mobileDrugSuggestions"></datalist>
     </div>
     <div class="mobile-search-note" id="mobileSearchNote">點擊藥物方格即可翻牌</div>
+    <button class="mobile-saved-mnemonics" id="mobileMnemonicLibraryBtn" type="button">
+      <span>已儲存口訣</span>
+      <span class="saved-count-pill" id="mobileMnemonicCount">0</span>
+    </button>
   </section>
 
   <header class="topbar">
@@ -480,6 +548,9 @@ html,body{
       <p>先回想分類，再翻牌核對；附 2022–2026 年藥師（一）藥理學／藥物化學考古重點。</p>
     </div>
     <div class="top-actions">
+      <button class="btn btn-ghost" id="mnemonicLibraryBtn">
+        已儲存口訣 <span class="saved-count-pill" id="desktopMnemonicCount">0</span>
+      </button>
       <button class="btn btn-ghost" id="dataInfoBtn">資料說明</button>
       <button class="btn btn-white" id="newCardTopBtn">隨機下一題</button>
     </div>
@@ -653,6 +724,26 @@ html,body{
 <div id="mobileHintToast" class="mobile-hint-toast mobile-only" role="status" aria-live="polite">
   <button id="mobileHintClose" type="button" aria-label="關閉提示">×</button>
   <div id="mobileHintText"></div>
+</div>
+
+
+<div class="modal" id="mnemonicLibraryModal" role="dialog" aria-modal="true" aria-labelledby="mnemonicLibraryTitle">
+  <div class="modal-box mnemonic-library-box">
+    <div class="modal-head">
+      <div>
+        <h2 id="mnemonicLibraryTitle">已儲存口訣</h2>
+        <div class="mnemonic-library-summary" id="mnemonicLibrarySummary">共 0 則</div>
+      </div>
+      <button class="icon-btn" id="closeMnemonicLibraryBtn" type="button">關閉</button>
+    </div>
+    <div class="mnemonic-library-tools">
+      <input id="mnemonicLibrarySearch" type="search" placeholder="搜尋藥名或口訣內容" autocomplete="off">
+    </div>
+    <div class="mnemonic-library-list" id="mnemonicLibraryList"></div>
+    <div class="mnemonic-library-empty" id="mnemonicLibraryEmpty">
+      尚未儲存任何口訣。翻牌後可在「我的口訣」欄位新增。
+    </div>
+  </div>
 </div>
 
 <div class="modal" id="dataModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -885,6 +976,80 @@ function renderFront(){
   updateStar();
 }
 
+
+function mnemonicEntries(){
+  const notes=store.mnemonics||{};
+  const byId={};
+  DATA.unique.forEach(function(item){byId[item.id]=item;});
+  return Object.keys(notes).filter(function(key){
+    return String(notes[key]||"").trim()!=="";
+  }).map(function(key){
+    return {
+      id:key,
+      drug:byId[key]?byId[key].drug:key,
+      text:String(notes[key])
+    };
+  }).sort(function(a,b){
+    return a.drug.localeCompare(b.drug,"en",{sensitivity:"base"});
+  });
+}
+function updateMnemonicLibraryCount(){
+  const count=mnemonicEntries().length;
+  if($("desktopMnemonicCount"))$("desktopMnemonicCount").textContent=count;
+  if($("mobileMnemonicCount"))$("mobileMnemonicCount").textContent=count;
+}
+function renderMnemonicLibrary(query){
+  const q=String(query||"").trim().toLowerCase();
+  const all=mnemonicEntries();
+  const filtered=all.filter(function(item){
+    return !q || item.drug.toLowerCase().indexOf(q)!==-1 || item.text.toLowerCase().indexOf(q)!==-1;
+  });
+  if($("mnemonicLibrarySummary")){
+    $("mnemonicLibrarySummary").textContent=q
+      ? "找到 "+filtered.length+"／"+all.length+" 則"
+      : "共 "+all.length+" 則";
+  }
+  if($("mnemonicLibraryList")){
+    $("mnemonicLibraryList").innerHTML=filtered.map(function(item){
+      return '<div class="mnemonic-library-item">'+
+        '<div class="mnemonic-library-item-head">'+
+          '<div class="mnemonic-library-drug">'+escapeHtml(item.drug)+'</div>'+
+          '<button class="mnemonic-open-btn" type="button" data-mnemonic-drug-id="'+escapeHtml(item.id)+'">開啟此藥</button>'+
+        '</div>'+
+        '<div class="mnemonic-library-text">'+escapeHtml(item.text)+'</div>'+
+      '</div>';
+    }).join("");
+  }
+  if($("mnemonicLibraryEmpty")){
+    $("mnemonicLibraryEmpty").style.display=filtered.length?"none":"block";
+    $("mnemonicLibraryEmpty").textContent=all.length
+      ? "沒有符合搜尋條件的口訣。"
+      : "尚未儲存任何口訣。翻牌後可在「我的口訣」欄位新增。";
+  }
+}
+function openMnemonicLibrary(){
+  if(!$("mnemonicLibraryModal"))return;
+  if($("mnemonicLibrarySearch"))$("mnemonicLibrarySearch").value="";
+  renderMnemonicLibrary("");
+  $("mnemonicLibraryModal").classList.add("open");
+  setTimeout(function(){
+    if($("mnemonicLibrarySearch"))$("mnemonicLibrarySearch").focus();
+  },80);
+}
+function closeMnemonicLibrary(){
+  if($("mnemonicLibraryModal"))$("mnemonicLibraryModal").classList.remove("open");
+}
+function openDrugFromMnemonicLibrary(drugId){
+  const cards=getCards();
+  let found=cards.find(function(card){return card.base.id===drugId;});
+  if(!found){
+    found=getCards().find(function(card){return String(card.base.id)===String(drugId);});
+  }
+  if(!found)return;
+  closeMnemonicLibrary();
+  nextCard(found);
+}
+
 function mnemonicKey(card){
   return card && card.base ? card.base.id : "";
 }
@@ -900,6 +1065,7 @@ function saveMnemonic(){
   if(value)store.mnemonics[key]=value;
   else delete store.mnemonics[key];
   saveStore();
+  updateMnemonicLibraryCount();
   $("mnemonicStatus").textContent=value?"已儲存；下次按提示會顯示。":"已清除這個藥物的口訣。";
   setTimeout(function(){ if($("mnemonicStatus"))$("mnemonicStatus").textContent=""; },2200);
 }
@@ -1185,6 +1351,21 @@ $("examArea").addEventListener("click",e=>{
 els.flash.addEventListener("click",e=>{
   if(!revealed && !e.target.closest("button,input,textarea,select,a"))reveal();
 });
+
+if($("mnemonicLibraryBtn"))$("mnemonicLibraryBtn").addEventListener("click",openMnemonicLibrary);
+if($("mobileMnemonicLibraryBtn"))$("mobileMnemonicLibraryBtn").addEventListener("click",openMnemonicLibrary);
+if($("closeMnemonicLibraryBtn"))$("closeMnemonicLibraryBtn").addEventListener("click",closeMnemonicLibrary);
+if($("mnemonicLibraryModal"))$("mnemonicLibraryModal").addEventListener("click",function(e){
+  if(e.target===$("mnemonicLibraryModal"))closeMnemonicLibrary();
+});
+if($("mnemonicLibrarySearch"))$("mnemonicLibrarySearch").addEventListener("input",function(e){
+  renderMnemonicLibrary(e.target.value);
+});
+if($("mnemonicLibraryList"))$("mnemonicLibraryList").addEventListener("click",function(e){
+  const button=e.target.closest(".mnemonic-open-btn");
+  if(button)openDrugFromMnemonicLibrary(button.dataset.mnemonicDrugId);
+});
+
 $("dataInfoBtn").addEventListener("click",()=>$("dataModal").classList.add("open"));
 $("closeModalBtn").addEventListener("click",()=>$("dataModal").classList.remove("open"));
 $("dataModal").addEventListener("click",e=>{if(e.target===$("dataModal"))$("dataModal").classList.remove("open")});
@@ -1206,13 +1387,17 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="2")grade("unsure");
   else if(e.key==="3")grade("wrong");
   else if(e.key.toLowerCase()==="n")nextCard();
-  else if(e.key==="Escape")$("dataModal").classList.remove("open");
+  else if(e.key==="Escape"){
+    $("dataModal").classList.remove("open");
+    closeMnemonicLibrary();
+  }
 });
 try{
   buildChapters();
   buildMobileDrugSuggestions();
   buildPapers();
   initStats();
+  updateMnemonicLibraryCount();
   nextCard();
   window.__pharmQuizStarted = true;
   var startupNotice = document.getElementById("startupNotice");
