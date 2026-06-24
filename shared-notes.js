@@ -1,11 +1,11 @@
 /*
-  藥學國考共同提示資料庫 v9
+  藥學國考共同提示資料庫 v10
   - drugFacts：特定藥物個論，以小寫 generic name 為 key。
   - classRules：分類共通資訊；chapters 限定章節，match 可為 any 或 all。
   - 請避免只用「第一代」「第二代」「其他」等泛用詞而沒有章節限制。
 */
 window.PHARM_SHARED_NOTES = {
-  "version": "2026-06-20-v9",
+  "version": "2026-06-24-v10",
   "description": "共同國考個論與藥化速記。classRules 以章節與分類路徑比對；drugFacts 以藥名精確比對。",
   "drugFacts": {
     "nimodipine": [
