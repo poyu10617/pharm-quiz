@@ -517,26 +517,42 @@ html,body{
 }
 
 
-/* 網站編輯署名：不影響點擊與主要功能 */
+
+/* 網站編輯與回饋連結 */
 .site-credit{
   position:fixed;
   right:10px;
   bottom:6px;
   z-index:999;
   font-size:11px;
-  color:rgba(23,54,93,.45);
-  background:rgba(255,255,255,.72);
-  border:1px solid rgba(23,54,93,.12);
+  color:rgba(23,54,93,.52);
+  background:rgba(255,255,255,.78);
+  border:1px solid rgba(23,54,93,.14);
   border-radius:999px;
   padding:4px 8px;
-  pointer-events:none;
   user-select:none;
+  box-shadow:0 4px 14px rgba(23,54,93,.08);
 }
+
+.site-credit a{
+  color:rgba(23,54,93,.78);
+  text-decoration:none;
+  font-weight:800;
+}
+
+.site-credit a:hover{
+  text-decoration:underline;
+}
+
 @media(max-width:820px){
   .site-credit{
     left:10px;
     right:auto;
     bottom:6px;
+    max-width:calc(100vw - 102px);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
 }
 
@@ -1498,6 +1514,10 @@ setTimeout(function(){
 }, 3500);
 </script>
 
-<div class="site-credit">網站編輯：何柏諭</div>
+<div class="site-credit">
+  網站編輯：何柏諭 ｜ 
+  <a href="https://forms.gle/WXFACSdZPwFgsWZZ9" target="_blank" rel="noopener">回饋 / bug回報</a>
+</div>
+
 </body>
 </html>
