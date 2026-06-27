@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f6f8fb">
-<title>藥學國考｜隨機藥物分類卡 v12</title>
+<title>藥學國考｜隨機藥物分類卡 v12.1</title>
 <style>
 :root{
   --navy:#17365d;--blue:#1f4e78;--sky:#dcecf8;--pale:#f4f8fb;--ink:#17212b;
@@ -1808,7 +1808,14 @@ els.flash.addEventListener("click",e=>{
 });
 
 
-if($("backupCodeOpenBtn"))$("backupCodeOpenBtn").addEventListener("click",openBackupCodeModal);
+
+document.addEventListener("click",function(e){
+  const backupOpen=e.target.closest("#backupCodeOpenBtn");
+  if(backupOpen){
+    e.preventDefault();
+    openBackupCodeModal();
+  }
+});
 if($("closeBackupCodeBtn"))$("closeBackupCodeBtn").addEventListener("click",closeBackupCodeModal);
 if($("backupCodeModal"))$("backupCodeModal").addEventListener("click",function(e){
   if(e.target===$("backupCodeModal"))closeBackupCodeModal();
