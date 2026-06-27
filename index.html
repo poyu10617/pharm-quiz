@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f6f8fb">
-<title>藥學國考｜隨機藥物分類卡 v13.3.2</title>
+<title>藥學國考｜隨機藥物分類卡 v14.3.2</title>
 <style>
 :root{
   --navy:#17365d;--blue:#1f4e78;--sky:#dcecf8;--pale:#f4f8fb;--ink:#17212b;
@@ -387,13 +387,29 @@ html,body{
     display:block;padding:18px 14px 34px;
   }
 
-  .card-head,
   .question-label,
   .front-sub,
   .answer-input,
   .front-buttons,
   .card-front .hint-box{
     display:none !important;
+  }
+  .card-head{
+    position:absolute;top:10px;left:10px;right:10px;z-index:4;
+    display:flex !important;justify-content:flex-end;pointer-events:none;
+  }
+  .card-head .eyebrow,
+  .card-head #starBtn{
+    display:none !important;
+  }
+  .card-head-actions{
+    display:flex;gap:6px;pointer-events:auto;
+  }
+  .card-head #hintBtn{
+    display:inline-flex !important;
+    min-width:0;border-radius:999px;padding:8px 11px;
+    background:#fff8dc;color:#6b4e16;border:1px solid #e0c874;
+    box-shadow:0 5px 14px rgba(70,52,7,.12);
   }
   .drug-name{
     width:100%;font-size:clamp(34px,11vw,58px) !important;
@@ -450,8 +466,8 @@ html,body{
     box-shadow:0 10px 26px rgba(23,54,93,.24);
   }
   .mobile-fab-icon{font-size:22px;line-height:1;font-weight:900}
-  .mobile-fab-options{background:#3d536c}
-  .mobile-fab-hint{background:#6b4e16}
+  .mobile-fab-unknown{background:#b42318}
+  .mobile-fab-star{background:#6b4e16}
   .mobile-fab-next{background:#1f4e78}
   .mobile-fab-btn:active{transform:scale(.96)}
 
@@ -572,6 +588,15 @@ html,body{
 }
 
 .site-credit a:hover{
+  text-decoration:underline;
+}
+
+.credit-option-btn{
+  border:0;background:transparent;color:rgba(23,54,93,.78);
+  padding:0;margin:0;font:inherit;font-weight:900;cursor:pointer;
+}
+
+.credit-option-btn:hover{
   text-decoration:underline;
 }
 
@@ -802,10 +827,9 @@ html,body{
       <select id="mobileReviewSelect" aria-label="選擇複習狀態">
         <option value="all">複習狀態：全部</option>
         <option value="unseen">複習狀態：尚未作答</option>
-        <option value="wrong">複習狀態：答錯</option>
-        <option value="unsure">複習狀態：模糊</option>
-        <option value="correct">複習狀態：答對</option>
-        <option value="starred">複習狀態：已收藏</option>
+        <option value="correct">複習狀態：答對（知道）</option>
+        <option value="wrong">複習狀態：不知道</option>
+        <option value="starred">複習狀態：收藏</option>
       </select>
     </div>
   </section>
@@ -868,10 +892,9 @@ html,body{
         <select id="reviewFilter">
           <option value="all">全部</option>
           <option value="unseen">尚未作答</option>
-          <option value="wrong">答錯</option>
-          <option value="unsure">模糊</option>
-          <option value="correct">答對</option>
-          <option value="starred">已收藏</option>
+          <option value="correct">答對（知道）</option>
+          <option value="wrong">不知道</option>
+          <option value="starred">收藏</option>
         </select>
       </div>
     </div>
@@ -900,7 +923,7 @@ html,body{
         <div class="card-front">
           <div class="question-label">請回想：這個藥物屬於什麼分類？</div>
           <div class="drug-name" id="drugName">載入中…</div>
-          <div class="front-sub">建議回答「章節／大分類／次分類或機轉」。點卡片或按「翻牌看答案」核對。</div>
+          <div class="front-sub">先在心裡回想分類與重點，再點卡片或按「翻牌看答案」核對。翻牌後只需要標記「知道／不知道／收藏」。</div>
           <div class="answer-input">
             <label for="selfAnswer">你的回答（選填，不會自動評分）</label>
             <textarea id="selfAnswer" placeholder="例如：利尿劑 → 亨利氏環粗上行支 → loop diuretic"></textarea>
@@ -930,10 +953,10 @@ html,body{
           <div class="section-title">近十年藥理／藥化考點</div>
           <div id="examArea"></div>
           <div class="grade-bar" id="gradeBar">
-            <button class="btn btn-good" data-grade="correct">1　答對</button>
-            <button class="btn btn-warn" data-grade="unsure">2　模糊</button>
-            <button class="btn btn-bad" data-grade="wrong">3　答錯</button>
-            <button class="btn btn-primary" id="nextBtn">N　下一題</button>
+            <button class="btn btn-good" data-grade="correct">知道</button>
+            <button class="btn btn-bad" data-grade="wrong">不知道</button>
+            <button class="btn btn-soft" id="gradeStarBtn" type="button">☆ 收藏</button>
+            <button class="btn btn-primary" id="nextBtn">下一題</button>
           </div>
           <div class="grade-result" id="gradeResult"></div>
         </div>
@@ -951,9 +974,9 @@ html,body{
         <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
         <div class="mini-grid">
           <div class="mini"><b id="seenCount">0</b><span>已看過</span></div>
-          <div class="mini"><b id="correctCount">0</b><span>答對</span></div>
-          <div class="mini"><b id="unsureCount">0</b><span>模糊</span></div>
-          <div class="mini"><b id="wrongCount">0</b><span>答錯</span></div>
+          <div class="mini"><b id="correctCount">0</b><span>知道</span></div>
+          <div class="mini"><b id="unsureCount">0</b><span>收藏</span></div>
+          <div class="mini"><b id="wrongCount">0</b><span>不知道</span></div>
         </div>
         <button class="btn btn-soft" id="resetProgressBtn" style="width:100%;margin-top:10px">重設學習紀錄</button>
       </div>
@@ -962,7 +985,7 @@ html,body{
         <div class="shortcuts">
           <div><kbd>Space</kbd> 翻牌</div>
           <div><kbd>H</kbd> 顯示提示</div>
-          <div><kbd>1</kbd> 答對　<kbd>2</kbd> 模糊　<kbd>3</kbd> 答錯</div>
+          <div><kbd>1</kbd> 知道　<kbd>2</kbd> 不知道</div>
           <div><kbd>N</kbd> 下一題</div>
         </div>
       </div>
@@ -982,11 +1005,11 @@ html,body{
 
 
 <div class="mobile-fab mobile-only" aria-label="手機版快速操作">
-  <button id="mobileOptionsBtn" class="mobile-fab-btn mobile-fab-options" type="button" aria-label="開啟選項">
-    <span class="mobile-fab-icon">☰</span><span>選項</span>
+  <button id="mobileUnknownBtn" class="mobile-fab-btn mobile-fab-unknown" type="button" aria-label="標記不知道">
+    <span class="mobile-fab-icon">×</span><span>不知道</span>
   </button>
-  <button id="mobileHintBtn" class="mobile-fab-btn mobile-fab-hint" type="button" aria-label="顯示提示">
-    <span class="mobile-fab-icon">?</span><span>提示</span>
+  <button id="mobileStarFabBtn" class="mobile-fab-btn mobile-fab-star" type="button" aria-label="收藏此卡">
+    <span class="mobile-fab-icon">☆</span><span>收藏</span>
   </button>
   <button id="mobileNextBtn" class="mobile-fab-btn mobile-fab-next" type="button" aria-label="下一題">
     <span class="mobile-fab-icon">→</span><span>下一題</span>
@@ -1026,9 +1049,8 @@ html,body{
     <div class="progress-track"><div class="progress-fill" id="mobileProgressFill"></div></div>
     <div class="mobile-progress-grid">
       <div class="mobile-progress-mini"><b id="mobileSeenCount">0</b><span>已看過</span></div>
-      <div class="mobile-progress-mini"><b id="mobileCorrectCount">0</b><span>答對</span></div>
-      <div class="mobile-progress-mini"><b id="mobileUnsureCount">0</b><span>模糊</span></div>
-      <div class="mobile-progress-mini"><b id="mobileWrongCount">0</b><span>答錯</span></div>
+      <div class="mobile-progress-mini"><b id="mobileCorrectCount">0</b><span>知道</span></div>
+      <div class="mobile-progress-mini"><b id="mobileWrongCount">0</b><span>不知道</span></div>
       <div class="mobile-progress-mini"><b id="mobileStarredCount">0</b><span>收藏</span></div>
       <div class="mobile-progress-mini"><b id="mobilePoolProgressCount">0</b><span>目前篩選</span></div>
     </div>
@@ -1048,7 +1070,7 @@ html,body{
     </div>
 
     <div class="backup-code-note">
-      這裡會把你目前瀏覽器裡的「口訣、收藏、答對／模糊／答錯、已看過」整理成一段純文字備份碼。
+      這裡會把你目前瀏覽器裡的「口訣、收藏、知道／不知道、已看過」整理成一段純文字備份碼。
       請複製後傳到 LINE、備忘錄或雲端筆記；在另一台手機、平板或電腦貼上，即可還原。
       <br><strong>注意：</strong>備份碼只存在你自己手上，網站不會上傳到雲端，也不會幫你保存。
     </div>
@@ -1112,7 +1134,7 @@ html,body{
     <h3>官方試題</h3>
     <div class="paper-grid" id="paperGrid"></div>
     <h3>共同資訊資料庫</h3><p>共同個論已拆分至 <code>shared-notes.js</code>，並以「章節＋分類路徑」比對，避免不同章節只因同樣出現「第一代」等字詞而誤套考點。共同資料版本：<strong id="sharedNotesVersion">載入中</strong>。</p><h3>共同資訊與個人口訣</h3><p>共同高頻資訊寫在網站檔案中，所有使用者都會看到；「我的口訣」則只存於各自瀏覽器的 localStorage，不會互相覆蓋。下次抽到同一藥物時，按提示即可同時看到共同字尾提示與自己的口訣。</p><h3>自我評分</h3>
-    <p>文字輸入欄不會自動判分。翻牌後請自行比對分類，再按「答對／模糊／答錯」。開啟加權複習後，答錯及模糊的卡片會以較高機率重新出現。</p>
+    <p>文字輸入欄不會自動判分。翻牌後請自行比對分類，再按「知道／不知道」。開啟加權複習後，答錯及模糊的卡片會以較高機率重新出現。</p>
   </div>
 </div>
 
@@ -1247,7 +1269,6 @@ function updateMobileProgressModal(){
   const s=progressStats();
   if($("mobileSeenCount"))$("mobileSeenCount").textContent=s.seen;
   if($("mobileCorrectCount"))$("mobileCorrectCount").textContent=s.correct;
-  if($("mobileUnsureCount"))$("mobileUnsureCount").textContent=s.unsure;
   if($("mobileWrongCount"))$("mobileWrongCount").textContent=s.wrong;
   if($("mobileStarredCount"))$("mobileStarredCount").textContent=s.starred;
   if($("mobilePoolProgressCount"))$("mobilePoolProgressCount").textContent=s.pool;
@@ -1406,7 +1427,7 @@ function backupStats(data){
 
 function backupStatsText(data){
   const s=backupStats(data);
-  return "口訣 "+s.mnemonics+" 則｜有紀錄卡片 "+s.progress+" 張｜收藏 "+s.starred+" 張｜答對 "+s.correct+"｜模糊 "+s.unsure+"｜答錯 "+s.wrong;
+  return "口訣 "+s.mnemonics+" 則｜有紀錄卡片 "+s.progress+" 張｜收藏 "+s.starred+" 張｜知道 "+s.correct+"｜模糊 "+s.unsure+"｜不知道 "+s.wrong;
 }
 
 function bytesToBackupBase64(bytes){
@@ -1915,14 +1936,18 @@ function showHint(){
   else els.hint.style.display="block";
 }
 function grade(status){
-  if(!current || !revealed || currentGraded)return;
-  currentGraded=true;
+  if(!current)return;
+  if(!revealed)reveal();
   const p=progressFor(current.id);
-  p.status=status;p[status]=(p[status]||0)+1;p.last=Date.now();
-  session[status]++;saveStore();
-  document.querySelectorAll("[data-grade]").forEach(b=>b.disabled=true);
-  const label={correct:"已記錄：答對 ✓",unsure:"已記錄：模糊，之後會提高出現率",wrong:"已記錄：答錯，之後會優先複習"}[status];
-  els.gradeResult.textContent=label;els.gradeResult.style.display="block";
+  const previous=p.status;
+  p.status=status;
+  if(previous!==status)p[status]=(p[status]||0)+1;
+  p.last=Date.now();
+  currentGraded=true;
+  saveStore();
+  const label={correct:"已標記：知道 ✓",wrong:"已標記：不知道，之後會優先複習"}[status] || "已記錄";
+  els.gradeResult.textContent=label;
+  els.gradeResult.style.display="block";
   updateProgress();
 }
 function updateStar(){
@@ -1930,6 +1955,11 @@ function updateStar(){
   const p=progressFor(current.id);
   els.star.classList.toggle("active",!!p.starred);
   els.star.textContent=p.starred?"★ 已收藏":"☆ 收藏";
+  if($("gradeStarBtn"))$("gradeStarBtn").textContent=p.starred?"★ 已收藏":"☆ 收藏";
+  if($("mobileStarFabBtn")){
+    $("mobileStarFabBtn").querySelector(".mobile-fab-icon").textContent=p.starred?"★":"☆";
+    $("mobileStarFabBtn").querySelector("span:last-child").textContent=p.starred?"已收藏":"收藏";
+  }
 }
 function toggleStar(){
   if(!current)return;
@@ -1944,11 +1974,11 @@ function updateProgress(){
   const states=cards.map(c=>progressFor(c.id));
   const seen=states.filter(p=>p.seen>0).length;
   const correct=states.filter(p=>p.status==="correct").length;
-  const unsure=states.filter(p=>p.status==="unsure").length;
+  const starred=states.filter(p=>p.starred).length;
   const wrong=states.filter(p=>p.status==="wrong").length;
   $("seenCount").textContent=seen;
   $("correctCount").textContent=correct;
-  $("unsureCount").textContent=unsure;
+  $("unsureCount").textContent=starred;
   $("wrongCount").textContent=wrong;
   $("progressFill").style.width=`${cards.length?seen/cards.length*100:0}%`;
   updateMobileProgressModal();
@@ -1994,7 +2024,7 @@ function initStats(){
   $("statCore").textContent=DATA.meta.drugCoreExam.toLocaleString();
 }
 function resetProgress(){
-  if(!confirm("確定清除所有答對、模糊、答錯與收藏紀錄嗎？"))return;
+  if(!confirm("確定清除所有知道、不知道與收藏紀錄嗎？"))return;
   store={progress:{},settings:{}};saveStore();session={correct:0,unsure:0,wrong:0};updateProgress();nextCard();
 }
 ["modeSelect","chapterSelect","examFilter","subjectFilter","reviewFilter"].forEach(id=>{
@@ -2012,6 +2042,7 @@ $("newCardTopBtn").addEventListener("click",()=>nextCard());
 $("hintBtn").addEventListener("click",showHint);
 $("saveMnemonicBtn").addEventListener("click",saveMnemonic);
 $("starBtn").addEventListener("click",toggleStar);
+if($("gradeStarBtn"))$("gradeStarBtn").addEventListener("click",toggleStar);
 $("searchBtn").addEventListener("click",searchDrug);
 $("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")searchDrug()});
 $("clearFiltersBtn").addEventListener("click",clearFilters);
@@ -2036,12 +2067,21 @@ $("examArea").addEventListener("click",e=>{
   if(toggle)toggleExamAnswer(toggle);
 });
 els.flash.addEventListener("click",e=>{
-  if(!revealed && !e.target.closest("button,input,textarea,select,a"))reveal();
+  if(!revealed && !e.target.closest("button,input,textarea,select,a")){
+    reveal();
+    if(isMobileLayout())grade("correct");
+  }
 });
 
 
 
 document.addEventListener("click",function(e){
+  const creditOptions=e.target.closest("#creditOptionsBtn");
+  if(creditOptions){
+    e.preventDefault();
+    openMobileOptionsModal();
+    return;
+  }
   const backupOpen=e.target.closest("#backupCodeOpenBtn");
   if(backupOpen){
     e.preventDefault();
@@ -2058,7 +2098,6 @@ if($("restoreBackupCodeBtn"))$("restoreBackupCodeBtn").addEventListener("click",
 if($("clearBackupCodeBtn"))$("clearBackupCodeBtn").addEventListener("click",clearBackupCodeFields);
 
 
-if($("mobileOptionsBtn"))$("mobileOptionsBtn").addEventListener("click",openMobileOptionsModal);
 if($("closeMobileOptionsBtn"))$("closeMobileOptionsBtn").addEventListener("click",closeMobileOptionsModal);
 if($("mobileOptionsModal"))$("mobileOptionsModal").addEventListener("click",function(e){
   if(e.target===$("mobileOptionsModal"))closeMobileOptionsModal();
@@ -2110,6 +2149,8 @@ if($("mobileSearchInput"))$("mobileSearchInput").addEventListener("keydown",func
   if(e.key==="Enter"){e.preventDefault();mobileSearchDrug();}
 });
 if($("mobileHintBtn"))$("mobileHintBtn").addEventListener("click",showHint);
+if($("mobileUnknownBtn"))$("mobileUnknownBtn").addEventListener("click",function(){grade("wrong");});
+if($("mobileStarFabBtn"))$("mobileStarFabBtn").addEventListener("click",toggleStar);
 if($("mobileNextBtn"))$("mobileNextBtn").addEventListener("click",function(){nextCard();});
 if($("mobileHintClose"))$("mobileHintClose").addEventListener("click",hideMobileHint);
 
@@ -2119,8 +2160,7 @@ document.addEventListener("keydown",e=>{
   if(e.code==="Space"){e.preventDefault();reveal()}
   else if(e.key.toLowerCase()==="h")showHint();
   else if(e.key==="1")grade("correct");
-  else if(e.key==="2")grade("unsure");
-  else if(e.key==="3")grade("wrong");
+  else if(e.key==="2")grade("wrong");
   else if(e.key.toLowerCase()==="n")nextCard();
   else if(e.key==="Escape"){
     $("dataModal").classList.remove("open");
@@ -2170,7 +2210,8 @@ setTimeout(function(){
 <div class="credit-panel">
   <div class="site-credit">
     網站編輯：何柏諭 ｜ 
-    <a href="https://forms.gle/WXFACSdZPwFgsWZZ9" target="_blank" rel="noopener">回饋 / bug回報</a>
+    <button class="credit-option-btn" id="creditOptionsBtn" type="button">選項</button>
+    ｜ <a href="https://forms.gle/WXFACSdZPwFgsWZZ9" target="_blank" rel="noopener">回饋 / bug回報</a>
   </div>
   <button class="backup-open-btn" id="backupCodeOpenBtn" type="button">備份 / 還原口訣與進度</button>
 </div>
