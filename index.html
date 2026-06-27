@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f6f8fb">
-<title>藥學國考｜隨機藥物分類卡 v12.3.3.2</title>
+<title>藥學國考｜隨機藥物分類卡 v13.3.2</title>
 <style>
 :root{
   --navy:#17365d;--blue:#1f4e78;--sky:#dcecf8;--pale:#f4f8fb;--ink:#17212b;
@@ -352,6 +352,17 @@ html,body{
   .mobile-chapter-shell select:focus{
     border-color:#3979aa;box-shadow:0 0 0 3px rgba(57,121,170,.15);
   }
+  .mobile-review-shell{
+    max-width:680px;margin:8px auto 0;
+  }
+  .mobile-review-shell select{
+    width:100%;height:44px;border:1px solid #b9c7d3;border-radius:15px;
+    padding:0 12px;background:#fff;color:#17365d;font-size:15px;font-weight:800;
+    outline:none;box-shadow:0 3px 10px rgba(23,54,93,.05);
+  }
+  .mobile-review-shell select:focus{
+    border-color:#3979aa;box-shadow:0 0 0 3px rgba(57,121,170,.15);
+  }
   .mobile-search-note{
     max-width:680px;margin:6px auto 0;color:#64748b;text-align:center;font-size:12px
   }
@@ -439,6 +450,7 @@ html,body{
     box-shadow:0 10px 26px rgba(23,54,93,.24);
   }
   .mobile-fab-icon{font-size:22px;line-height:1;font-weight:900}
+  .mobile-fab-options{background:#3d536c}
   .mobile-fab-hint{background:#6b4e16}
   .mobile-fab-next{background:#1f4e78}
   .mobile-fab-btn:active{transform:scale(.96)}
@@ -678,6 +690,89 @@ html,body{
     min-height:150px;
   }
 }
+
+/* 手機版選項／學習紀錄視窗 */
+.mobile-options-box,
+.mobile-progress-box{
+  width:min(520px,100%);
+}
+
+.mobile-options-list{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+
+.mobile-option-action{
+  width:100%;
+  border:1px solid #d7e0e8;
+  border-radius:16px;
+  background:#fbfdff;
+  padding:14px;
+  text-align:left;
+  color:#17365d;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.mobile-option-action span{
+  display:block;
+  color:#64748b;
+  font-size:13px;
+  font-weight:700;
+  margin-top:4px;
+}
+
+.mobile-progress-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin:14px 0;
+}
+
+.mobile-progress-mini{
+  border:1px solid #d7e0e8;
+  border-radius:15px;
+  background:#fbfdff;
+  padding:12px;
+  text-align:center;
+}
+
+.mobile-progress-mini b{
+  display:block;
+  color:#17365d;
+  font-size:24px;
+}
+
+.mobile-progress-mini span{
+  color:#64748b;
+  font-size:13px;
+  font-weight:800;
+}
+
+.mobile-progress-note{
+  color:#64748b;
+  font-size:13px;
+  line-height:1.6;
+  margin:10px 0 0;
+}
+
+@media(max-width:820px){
+  .mobile-options-box,
+  .mobile-progress-box{
+    width:100%;
+    max-height:92vh;
+    padding:18px 14px;
+    border-radius:20px 20px 0 0;
+    margin-top:auto;
+  }
+  #mobileOptionsModal,
+  #mobileProgressModal{
+    align-items:flex-end;
+    padding:0;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -703,10 +798,16 @@ html,body{
       </select>
     </div>
     <div class="mobile-search-note" id="mobileSearchNote">點擊藥物方格即可翻牌</div>
-    <button class="mobile-saved-mnemonics" id="mobileMnemonicLibraryBtn" type="button">
-      <span>已儲存口訣</span>
-      <span class="saved-count-pill" id="mobileMnemonicCount">0</span>
-    </button>
+    <div class="mobile-review-shell">
+      <select id="mobileReviewSelect" aria-label="選擇複習狀態">
+        <option value="all">複習狀態：全部</option>
+        <option value="unseen">複習狀態：尚未作答</option>
+        <option value="wrong">複習狀態：答錯</option>
+        <option value="unsure">複習狀態：模糊</option>
+        <option value="correct">複習狀態：答對</option>
+        <option value="starred">複習狀態：已收藏</option>
+      </select>
+    </div>
   </section>
 
   <header class="topbar">
@@ -881,6 +982,9 @@ html,body{
 
 
 <div class="mobile-fab mobile-only" aria-label="手機版快速操作">
+  <button id="mobileOptionsBtn" class="mobile-fab-btn mobile-fab-options" type="button" aria-label="開啟選項">
+    <span class="mobile-fab-icon">☰</span><span>選項</span>
+  </button>
   <button id="mobileHintBtn" class="mobile-fab-btn mobile-fab-hint" type="button" aria-label="顯示提示">
     <span class="mobile-fab-icon">?</span><span>提示</span>
   </button>
@@ -894,6 +998,44 @@ html,body{
 </div>
 
 
+
+
+<div class="modal" id="mobileOptionsModal" role="dialog" aria-modal="true" aria-labelledby="mobileOptionsTitle">
+  <div class="modal-box mobile-options-box">
+    <div class="modal-head">
+      <h2 id="mobileOptionsTitle">選項</h2>
+      <button class="icon-btn" id="closeMobileOptionsBtn" type="button">關閉</button>
+    </div>
+    <div class="mobile-options-list">
+      <button class="mobile-option-action" id="mobileOpenMnemonicFromOptionsBtn" type="button">
+        已儲存口訣 <span>查看自己建立過的所有口訣，目前 <b id="mobileOptionsMnemonicCount">0</b> 則</span>
+      </button>
+      <button class="mobile-option-action" id="mobileOpenProgressBtn" type="button">
+        學習紀錄 <span>查看已看過、答對、模糊、答錯與收藏統計</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="mobileProgressModal" role="dialog" aria-modal="true" aria-labelledby="mobileProgressTitle">
+  <div class="modal-box mobile-progress-box">
+    <div class="modal-head">
+      <h2 id="mobileProgressTitle">學習紀錄</h2>
+      <button class="icon-btn" id="closeMobileProgressBtn" type="button">關閉</button>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="mobileProgressFill"></div></div>
+    <div class="mobile-progress-grid">
+      <div class="mobile-progress-mini"><b id="mobileSeenCount">0</b><span>已看過</span></div>
+      <div class="mobile-progress-mini"><b id="mobileCorrectCount">0</b><span>答對</span></div>
+      <div class="mobile-progress-mini"><b id="mobileUnsureCount">0</b><span>模糊</span></div>
+      <div class="mobile-progress-mini"><b id="mobileWrongCount">0</b><span>答錯</span></div>
+      <div class="mobile-progress-mini"><b id="mobileStarredCount">0</b><span>收藏</span></div>
+      <div class="mobile-progress-mini"><b id="mobilePoolProgressCount">0</b><span>目前篩選</span></div>
+    </div>
+    <button class="btn btn-soft" id="mobileResetProgressBtn" type="button" style="width:100%">重設學習紀錄</button>
+    <p class="mobile-progress-note">學習紀錄仍只存在目前瀏覽器；換手機或平板時，可使用左下角的「備份 / 還原口訣與進度」。</p>
+  </div>
+</div>
 
 <div class="modal" id="backupCodeModal" role="dialog" aria-modal="true" aria-labelledby="backupCodeTitle">
   <div class="modal-box backup-code-box">
@@ -1081,6 +1223,51 @@ function showMobileHint(text){
 function syncMobileChapterSelect(){
   var mobile=$("mobileChapterSelect");
   if(mobile)mobile.value=els.chapter.value||"";
+}
+
+function syncMobileReviewSelect(){
+  var mobile=$("mobileReviewSelect");
+  if(mobile)mobile.value=els.review.value||"all";
+}
+function progressStats(){
+  const cards=getCards();
+  const states=cards.map(c=>progressFor(c.id));
+  return {
+    total: cards.length,
+    seen: states.filter(p=>p.seen>0).length,
+    correct: states.filter(p=>p.status==="correct").length,
+    unsure: states.filter(p=>p.status==="unsure").length,
+    wrong: states.filter(p=>p.status==="wrong").length,
+    starred: states.filter(p=>p.starred).length,
+    pool: eligibleCards().length
+  };
+}
+function updateMobileProgressModal(){
+  if(!$("mobileProgressModal"))return;
+  const s=progressStats();
+  if($("mobileSeenCount"))$("mobileSeenCount").textContent=s.seen;
+  if($("mobileCorrectCount"))$("mobileCorrectCount").textContent=s.correct;
+  if($("mobileUnsureCount"))$("mobileUnsureCount").textContent=s.unsure;
+  if($("mobileWrongCount"))$("mobileWrongCount").textContent=s.wrong;
+  if($("mobileStarredCount"))$("mobileStarredCount").textContent=s.starred;
+  if($("mobilePoolProgressCount"))$("mobilePoolProgressCount").textContent=s.pool;
+  if($("mobileProgressFill"))$("mobileProgressFill").style.width=`${s.total?s.seen/s.total*100:0}%`;
+}
+function openMobileOptionsModal(){
+  if(!$("mobileOptionsModal"))return;
+  updateMnemonicLibraryCount();
+  $("mobileOptionsModal").classList.add("open");
+}
+function closeMobileOptionsModal(){
+  if($("mobileOptionsModal"))$("mobileOptionsModal").classList.remove("open");
+}
+function openMobileProgressModal(){
+  if(!$("mobileProgressModal"))return;
+  updateMobileProgressModal();
+  $("mobileProgressModal").classList.add("open");
+}
+function closeMobileProgressModal(){
+  if($("mobileProgressModal"))$("mobileProgressModal").classList.remove("open");
 }
 
 function buildMobileDrugSuggestions(){
@@ -1441,6 +1628,7 @@ function updateMnemonicLibraryCount(){
   const count=mnemonicEntries().length;
   if($("desktopMnemonicCount"))$("desktopMnemonicCount").textContent=count;
   if($("mobileMnemonicCount"))$("mobileMnemonicCount").textContent=count;
+  if($("mobileOptionsMnemonicCount"))$("mobileOptionsMnemonicCount").textContent=count;
 }
 function renderMnemonicLibrary(query){
   const q=String(query||"").trim().toLowerCase();
@@ -1763,10 +1951,12 @@ function updateProgress(){
   $("unsureCount").textContent=unsure;
   $("wrongCount").textContent=wrong;
   $("progressFill").style.width=`${cards.length?seen/cards.length*100:0}%`;
+  updateMobileProgressModal();
 }
 function clearFilters(){
   els.chapter.value="";els.exam.value="all";els.subject.value="";els.review.value="all";els.search.value="";
   syncMobileChapterSelect();
+  syncMobileReviewSelect();
   nextCard();
 }
 function searchDrug(){
@@ -1810,6 +2000,7 @@ function resetProgress(){
 ["modeSelect","chapterSelect","examFilter","subjectFilter","reviewFilter"].forEach(id=>{
   $(id).addEventListener("change",()=>{
     if(id==="chapterSelect")syncMobileChapterSelect();
+    if(id==="reviewFilter")syncMobileReviewSelect();
     nextCard();
   });
 });
@@ -1866,8 +2057,30 @@ if($("copyBackupCodeBtn"))$("copyBackupCodeBtn").addEventListener("click",copyBa
 if($("restoreBackupCodeBtn"))$("restoreBackupCodeBtn").addEventListener("click",restoreBackupCode);
 if($("clearBackupCodeBtn"))$("clearBackupCodeBtn").addEventListener("click",clearBackupCodeFields);
 
+
+if($("mobileOptionsBtn"))$("mobileOptionsBtn").addEventListener("click",openMobileOptionsModal);
+if($("closeMobileOptionsBtn"))$("closeMobileOptionsBtn").addEventListener("click",closeMobileOptionsModal);
+if($("mobileOptionsModal"))$("mobileOptionsModal").addEventListener("click",function(e){
+  if(e.target===$("mobileOptionsModal"))closeMobileOptionsModal();
+});
+if($("mobileOpenMnemonicFromOptionsBtn"))$("mobileOpenMnemonicFromOptionsBtn").addEventListener("click",function(){
+  closeMobileOptionsModal();
+  openMnemonicLibrary();
+});
+if($("mobileOpenProgressBtn"))$("mobileOpenProgressBtn").addEventListener("click",function(){
+  closeMobileOptionsModal();
+  openMobileProgressModal();
+});
+if($("closeMobileProgressBtn"))$("closeMobileProgressBtn").addEventListener("click",closeMobileProgressModal);
+if($("mobileProgressModal"))$("mobileProgressModal").addEventListener("click",function(e){
+  if(e.target===$("mobileProgressModal"))closeMobileProgressModal();
+});
+if($("mobileResetProgressBtn"))$("mobileResetProgressBtn").addEventListener("click",function(){
+  closeMobileProgressModal();
+  resetProgress();
+});
+
 if($("mnemonicLibraryBtn"))$("mnemonicLibraryBtn").addEventListener("click",openMnemonicLibrary);
-if($("mobileMnemonicLibraryBtn"))$("mobileMnemonicLibraryBtn").addEventListener("click",openMnemonicLibrary);
 if($("closeMnemonicLibraryBtn"))$("closeMnemonicLibraryBtn").addEventListener("click",closeMnemonicLibrary);
 if($("mnemonicLibraryModal"))$("mnemonicLibraryModal").addEventListener("click",function(e){
   if(e.target===$("mnemonicLibraryModal"))closeMnemonicLibrary();
@@ -1886,6 +2099,10 @@ $("dataModal").addEventListener("click",e=>{if(e.target===$("dataModal"))$("data
 
 if($("mobileChapterSelect"))$("mobileChapterSelect").addEventListener("change",function(e){
   els.chapter.value=e.target.value;
+  nextCard();
+});
+if($("mobileReviewSelect"))$("mobileReviewSelect").addEventListener("change",function(e){
+  els.review.value=e.target.value;
   nextCard();
 });
 if($("mobileSearchBtn"))$("mobileSearchBtn").addEventListener("click",mobileSearchDrug);
@@ -1909,11 +2126,14 @@ document.addEventListener("keydown",e=>{
     $("dataModal").classList.remove("open");
     closeMnemonicLibrary();
     closeBackupCodeModal();
+    closeMobileOptionsModal();
+    closeMobileProgressModal();
   }
 });
 try{
   buildChapters();
   buildMobileDrugSuggestions();
+  syncMobileReviewSelect();
   buildPapers();
   initStats();
   updateMnemonicLibraryCount();
