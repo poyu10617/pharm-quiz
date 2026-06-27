@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f6f8fb">
-<title>藥學國考｜隨機藥物分類卡 v11</title>
+<title>藥學國考｜隨機藥物分類卡 v12</title>
 <style>
 :root{
   --navy:#17365d;--blue:#1f4e78;--sky:#dcecf8;--pale:#f4f8fb;--ink:#17212b;
@@ -529,15 +529,23 @@ html,body{
 
 
 
-/* 網站編輯與回饋連結 */
-.site-credit{
+/* 網站編輯、回饋與備份入口 */
+.credit-panel{
   position:fixed;
   right:10px;
   bottom:6px;
   z-index:999;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:4px;
   font-size:11px;
-  color:rgba(23,54,93,.52);
-  background:rgba(255,255,255,.78);
+}
+
+.site-credit,
+.backup-open-btn{
+  color:rgba(23,54,93,.55);
+  background:rgba(255,255,255,.82);
   border:1px solid rgba(23,54,93,.14);
   border-radius:999px;
   padding:4px 8px;
@@ -555,18 +563,121 @@ html,body{
   text-decoration:underline;
 }
 
+.backup-open-btn{
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.backup-open-btn:hover{
+  color:#17365d;
+  background:#fff;
+}
+
 @media(max-width:820px){
-  .site-credit{
+  .credit-panel{
     left:10px;
     right:auto;
     bottom:6px;
+    align-items:flex-start;
     max-width:calc(100vw - 102px);
+  }
+  .site-credit,
+  .backup-open-btn{
+    max-width:100%;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
   }
 }
 
+/* 備份碼視窗 */
+.backup-code-box{
+  width:min(860px,100%);
+}
+
+.backup-code-note{
+  padding:12px 14px;
+  border:1px solid #d7e0e8;
+  border-radius:14px;
+  background:#f8fbfd;
+  color:#475569;
+  line-height:1.65;
+  font-size:14px;
+  margin:12px 0;
+}
+
+.backup-code-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:14px;
+}
+
+.backup-code-card{
+  border:1px solid #d7e0e8;
+  border-radius:16px;
+  background:#fbfdff;
+  padding:14px;
+}
+
+.backup-code-card h3{
+  margin:0 0 8px;
+  color:#17365d;
+}
+
+.backup-code-card textarea{
+  width:100%;
+  min-height:170px;
+  resize:vertical;
+  border:1px solid #cbd5e1;
+  border-radius:13px;
+  padding:11px;
+  background:#fff;
+  color:#17212b;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.backup-code-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:10px 0;
+}
+
+.backup-code-status{
+  min-height:22px;
+  color:#177245;
+  font-size:13px;
+  font-weight:800;
+  margin-top:8px;
+}
+
+.backup-code-warning{
+  color:#a16207;
+}
+
+@media(max-width:820px){
+  .backup-code-box{
+    width:100%;
+    max-height:92vh;
+    padding:18px 14px;
+    border-radius:20px 20px 0 0;
+    margin-top:auto;
+  }
+  #backupCodeModal{
+    align-items:flex-end;
+    padding:0;
+  }
+  .backup-code-grid{
+    grid-template-columns:1fr;
+  }
+  .backup-code-card textarea{
+    min-height:150px;
+  }
+}
 </style>
 </head>
 <body>
@@ -782,6 +893,49 @@ html,body{
   <div id="mobileHintText"></div>
 </div>
 
+
+
+<div class="modal" id="backupCodeModal" role="dialog" aria-modal="true" aria-labelledby="backupCodeTitle">
+  <div class="modal-box backup-code-box">
+    <div class="modal-head">
+      <div>
+        <h2 id="backupCodeTitle">備份 / 還原口訣與進度</h2>
+        <div class="mnemonic-library-summary" id="backupCodeSummary">不需要登入，也不需要上傳檔案</div>
+      </div>
+      <button class="icon-btn" id="closeBackupCodeBtn" type="button">關閉</button>
+    </div>
+
+    <div class="backup-code-note">
+      這裡會把你目前瀏覽器裡的「口訣、收藏、答對／模糊／答錯、已看過」整理成一段純文字備份碼。
+      請複製後傳到 LINE、備忘錄或雲端筆記；在另一台手機、平板或電腦貼上，即可還原。
+      <br><strong>注意：</strong>備份碼只存在你自己手上，網站不會上傳到雲端，也不會幫你保存。
+    </div>
+
+    <div class="backup-code-grid">
+      <section class="backup-code-card">
+        <h3>① 從這台裝置備份</h3>
+        <p class="mnemonic-library-summary">先產生備份碼，再複製貼到你自己會保存的地方。</p>
+        <div class="backup-code-actions">
+          <button class="btn btn-primary" id="generateBackupCodeBtn" type="button">產生備份碼</button>
+          <button class="btn btn-soft" id="copyBackupCodeBtn" type="button">複製備份碼</button>
+        </div>
+        <textarea id="backupCodeOutput" readonly placeholder="按「產生備份碼」後，這裡會出現一長串文字。"></textarea>
+      </section>
+
+      <section class="backup-code-card">
+        <h3>② 在另一台裝置還原</h3>
+        <p class="mnemonic-library-summary">把備份碼貼到下方，按「套用備份碼」。同一張卡若已有口訣，會以備份碼內容為主。</p>
+        <textarea id="backupCodeInput" placeholder="在這裡貼上備份碼"></textarea>
+        <div class="backup-code-actions">
+          <button class="btn btn-primary" id="restoreBackupCodeBtn" type="button">套用備份碼</button>
+          <button class="btn btn-soft" id="clearBackupCodeBtn" type="button">清空欄位</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="backup-code-status" id="backupCodeStatus"></div>
+  </div>
+</div>
 
 <div class="modal" id="mnemonicLibraryModal" role="dialog" aria-modal="true" aria-labelledby="mnemonicLibraryTitle">
   <div class="modal-box mnemonic-library-box">
@@ -1044,6 +1198,187 @@ function renderFront(){
   updateStar();
 }
 
+
+
+const BACKUP_CODE_PREFIX = "PHARM-CARD-BACKUP-v1:";
+
+function backupStats(data){
+  data=data||{};
+  const progress=data.progress||{};
+  const mnemonics=data.mnemonics||{};
+  const progressKeys=Object.keys(progress);
+  return {
+    progress: progressKeys.length,
+    mnemonics: Object.keys(mnemonics).filter(function(k){return String(mnemonics[k]||"").trim();}).length,
+    starred: progressKeys.filter(function(k){return progress[k] && progress[k].starred;}).length,
+    wrong: progressKeys.filter(function(k){return progress[k] && progress[k].status==="wrong";}).length,
+    unsure: progressKeys.filter(function(k){return progress[k] && progress[k].status==="unsure";}).length,
+    correct: progressKeys.filter(function(k){return progress[k] && progress[k].status==="correct";}).length
+  };
+}
+
+function backupStatsText(data){
+  const s=backupStats(data);
+  return "口訣 "+s.mnemonics+" 則｜有紀錄卡片 "+s.progress+" 張｜收藏 "+s.starred+" 張｜答對 "+s.correct+"｜模糊 "+s.unsure+"｜答錯 "+s.wrong;
+}
+
+function bytesToBackupBase64(bytes){
+  let binary="";
+  const chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk){
+    binary+=String.fromCharCode.apply(null, bytes.subarray(i,i+chunk));
+  }
+  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+
+function backupBase64ToBytes(text){
+  let value=String(text||"").replace(/\s/g,"").replace(/-/g,"+").replace(/_/g,"/");
+  while(value.length%4)value+="=";
+  const binary=atob(value);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+  return bytes;
+}
+
+function buildBackupPayload(){
+  return {
+    app:"pharmQuizletTW",
+    version:1,
+    exportedAt:new Date().toISOString(),
+    storageKey:STORAGE_KEY,
+    meta:{
+      unique:DATA.meta.unique,
+      placements:DATA.meta.placements,
+      questions:DATA.meta.questions,
+      period:DATA.meta.period
+    },
+    data:{
+      progress:store.progress||{},
+      settings:store.settings||{},
+      mnemonics:store.mnemonics||{}
+    }
+  };
+}
+
+function encodeBackupPayload(payload){
+  const json=JSON.stringify(payload);
+  const bytes=new TextEncoder().encode(json);
+  return BACKUP_CODE_PREFIX + bytesToBackupBase64(bytes);
+}
+
+function decodeBackupCode(code){
+  let text=String(code||"").trim();
+  if(!text)throw new Error("請先貼上備份碼。");
+  if(text.startsWith("{")){
+    return JSON.parse(text);
+  }
+  text=text.replace(/\s/g,"");
+  if(text.startsWith(BACKUP_CODE_PREFIX)){
+    text=text.slice(BACKUP_CODE_PREFIX.length);
+  }
+  const bytes=backupBase64ToBytes(text);
+  const json=new TextDecoder().decode(bytes);
+  return JSON.parse(json);
+}
+
+function normalizeBackupData(payload){
+  if(!payload || typeof payload!=="object")throw new Error("備份碼格式不正確。");
+  const data=payload.data || payload;
+  return {
+    progress:data.progress && typeof data.progress==="object" ? data.progress : {},
+    settings:data.settings && typeof data.settings==="object" ? data.settings : {},
+    mnemonics:data.mnemonics && typeof data.mnemonics==="object" ? data.mnemonics : {}
+  };
+}
+
+function setBackupStatus(message, warn){
+  const box=$("backupCodeStatus");
+  if(!box)return;
+  box.textContent=message||"";
+  box.classList.toggle("backup-code-warning",!!warn);
+}
+
+function updateBackupSummary(){
+  if($("backupCodeSummary"))$("backupCodeSummary").textContent=backupStatsText(store);
+}
+
+function openBackupCodeModal(){
+  if(!$("backupCodeModal"))return;
+  updateBackupSummary();
+  setBackupStatus("");
+  $("backupCodeModal").classList.add("open");
+}
+
+function closeBackupCodeModal(){
+  if($("backupCodeModal"))$("backupCodeModal").classList.remove("open");
+}
+
+function generateBackupCode(){
+  try{
+    const code=encodeBackupPayload(buildBackupPayload());
+    $("backupCodeOutput").value=code;
+    updateBackupSummary();
+    setBackupStatus("已產生備份碼。請按「複製備份碼」，再貼到 LINE、備忘錄或雲端筆記保存。");
+  }catch(e){
+    setBackupStatus("產生失敗："+(e.message||e), true);
+  }
+}
+
+function copyBackupCode(){
+  const output=$("backupCodeOutput");
+  if(!output || !output.value.trim()){
+    generateBackupCode();
+  }
+  const code=$("backupCodeOutput").value;
+  function done(){
+    setBackupStatus("已複製備份碼。可以貼到 LINE、備忘錄或傳給自己的聊天室。");
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(done).catch(function(){
+      output.focus();output.select();
+      try{document.execCommand("copy");done();}catch(e){setBackupStatus("無法自動複製，請長按或全選手動複製。",true);}
+    });
+  }else{
+    output.focus();output.select();
+    try{document.execCommand("copy");done();}catch(e){setBackupStatus("無法自動複製，請長按或全選手動複製。",true);}
+  }
+}
+
+function restoreBackupCode(){
+  try{
+    const raw=$("backupCodeInput").value;
+    const incoming=normalizeBackupData(decodeBackupCode(raw));
+    const stats=backupStats(incoming);
+    if(!stats.progress && !stats.mnemonics){
+      setBackupStatus("這組備份碼裡沒有找到口訣或進度。", true);
+      return;
+    }
+    const ok=confirm("即將合併還原：\\n"+backupStatsText(incoming)+"\\n\\n同一張卡若已有口訣或紀錄，會以備份碼內容為主。確定套用嗎？");
+    if(!ok)return;
+
+    store.progress=Object.assign({}, store.progress||{}, incoming.progress||{});
+    store.settings=Object.assign({}, store.settings||{}, incoming.settings||{});
+    store.mnemonics=Object.assign({}, store.mnemonics||{}, incoming.mnemonics||{});
+    saveStore();
+
+    updateProgress();
+    updateMnemonicLibraryCount();
+    updateBackupSummary();
+    if(current){
+      updateStar();
+      if(revealed)renderMnemonicEditor();
+    }
+    setBackupStatus("已完成還原："+backupStatsText(incoming));
+  }catch(e){
+    setBackupStatus("還原失敗：請確認備份碼是否完整。"+(e.message?("（"+e.message+"）"):""), true);
+  }
+}
+
+function clearBackupCodeFields(){
+  if($("backupCodeInput"))$("backupCodeInput").value="";
+  if($("backupCodeOutput"))$("backupCodeOutput").value="";
+  setBackupStatus("");
+}
 
 function mnemonicEntries(){
   const notes=store.mnemonics||{};
@@ -1472,6 +1807,17 @@ els.flash.addEventListener("click",e=>{
   if(!revealed && !e.target.closest("button,input,textarea,select,a"))reveal();
 });
 
+
+if($("backupCodeOpenBtn"))$("backupCodeOpenBtn").addEventListener("click",openBackupCodeModal);
+if($("closeBackupCodeBtn"))$("closeBackupCodeBtn").addEventListener("click",closeBackupCodeModal);
+if($("backupCodeModal"))$("backupCodeModal").addEventListener("click",function(e){
+  if(e.target===$("backupCodeModal"))closeBackupCodeModal();
+});
+if($("generateBackupCodeBtn"))$("generateBackupCodeBtn").addEventListener("click",generateBackupCode);
+if($("copyBackupCodeBtn"))$("copyBackupCodeBtn").addEventListener("click",copyBackupCode);
+if($("restoreBackupCodeBtn"))$("restoreBackupCodeBtn").addEventListener("click",restoreBackupCode);
+if($("clearBackupCodeBtn"))$("clearBackupCodeBtn").addEventListener("click",clearBackupCodeFields);
+
 if($("mnemonicLibraryBtn"))$("mnemonicLibraryBtn").addEventListener("click",openMnemonicLibrary);
 if($("mobileMnemonicLibraryBtn"))$("mobileMnemonicLibraryBtn").addEventListener("click",openMnemonicLibrary);
 if($("closeMnemonicLibraryBtn"))$("closeMnemonicLibraryBtn").addEventListener("click",closeMnemonicLibrary);
@@ -1514,6 +1860,7 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="Escape"){
     $("dataModal").classList.remove("open");
     closeMnemonicLibrary();
+    closeBackupCodeModal();
   }
 });
 try{
@@ -1552,10 +1899,12 @@ setTimeout(function(){
 }, 3500);
 </script>
 
-<div class="site-credit">
-  網站編輯：何柏諭 ｜ 
-  <a href="https://forms.gle/WXFACSdZPwFgsWZZ9" target="_blank" rel="noopener">回饋 / bug回報</a>
+<div class="credit-panel">
+  <div class="site-credit">
+    網站編輯：何柏諭 ｜ 
+    <a href="https://forms.gle/WXFACSdZPwFgsWZZ9" target="_blank" rel="noopener">回饋 / bug回報</a>
+  </div>
+  <button class="backup-open-btn" id="backupCodeOpenBtn" type="button">備份 / 還原口訣與進度</button>
 </div>
-
 </body>
 </html>
