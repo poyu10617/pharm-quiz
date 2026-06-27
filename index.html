@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f6f8fb">
-<title>藥學國考｜隨機藥物分類卡 v10</title>
+<title>藥學國考｜隨機藥物分類卡 v11</title>
 <style>
 :root{
   --navy:#17365d;--blue:#1f4e78;--sky:#dcecf8;--pale:#f4f8fb;--ink:#17212b;
@@ -341,6 +341,17 @@ html,body{
     background:#1f4e78;color:#fff;font-weight:900;
     box-shadow:0 4px 14px rgba(23,54,93,.15)
   }
+  .mobile-chapter-shell{
+    max-width:680px;margin:8px auto 0;
+  }
+  .mobile-chapter-shell select{
+    width:100%;height:44px;border:1px solid #b9c7d3;border-radius:15px;
+    padding:0 12px;background:#fff;color:#17365d;font-size:15px;font-weight:800;
+    outline:none;box-shadow:0 3px 10px rgba(23,54,93,.05);
+  }
+  .mobile-chapter-shell select:focus{
+    border-color:#3979aa;box-shadow:0 0 0 3px rgba(57,121,170,.15);
+  }
   .mobile-search-note{
     max-width:680px;margin:6px auto 0;color:#64748b;text-align:center;font-size:12px
   }
@@ -574,6 +585,11 @@ html,body{
              placeholder="搜尋藥物，例如 warfarin" autocomplete="off" autocapitalize="none" spellcheck="false">
       <button id="mobileSearchBtn" type="button" aria-label="搜尋藥物">搜尋</button>
       <datalist id="mobileDrugSuggestions"></datalist>
+    </div>
+    <div class="mobile-chapter-shell">
+      <select id="mobileChapterSelect" aria-label="選擇章節">
+        <option value="">全部章節</option>
+      </select>
     </div>
     <div class="mobile-search-note" id="mobileSearchNote">點擊藥物方格即可翻牌</div>
     <button class="mobile-saved-mnemonics" id="mobileMnemonicLibraryBtn" type="button">
@@ -908,6 +924,11 @@ function showMobileHint(text){
   target.textContent=text;
   toast.classList.add("show");
 }
+function syncMobileChapterSelect(){
+  var mobile=$("mobileChapterSelect");
+  if(mobile)mobile.value=els.chapter.value||"";
+}
+
 function buildMobileDrugSuggestions(){
   var list=$("mobileDrugSuggestions");
   if(!list)return;
@@ -1369,6 +1390,7 @@ function updateProgress(){
 }
 function clearFilters(){
   els.chapter.value="";els.exam.value="all";els.subject.value="";els.review.value="all";els.search.value="";
+  syncMobileChapterSelect();
   nextCard();
 }
 function searchDrug(){
@@ -1382,7 +1404,16 @@ function searchDrug(){
 function buildChapters(){
   DATA.chapters.forEach(c=>{
     const o=document.createElement("option");o.value=String(c.ch);
-    o.textContent=`${String(c.ch).padStart(2,"0")}｜${c.topic}`;els.chapter.appendChild(o);
+    o.textContent=`${String(c.ch).padStart(2,"0")}｜${c.topic}`;
+    els.chapter.appendChild(o);
+
+    const mobile=$("mobileChapterSelect");
+    if(mobile){
+      const mo=document.createElement("option");
+      mo.value=String(c.ch);
+      mo.textContent=`${String(c.ch).padStart(2,"0")}｜${c.topic}`;
+      mobile.appendChild(mo);
+    }
   });
 }
 function buildPapers(){
@@ -1401,7 +1432,10 @@ function resetProgress(){
   store={progress:{},settings:{}};saveStore();session={correct:0,unsure:0,wrong:0};updateProgress();nextCard();
 }
 ["modeSelect","chapterSelect","examFilter","subjectFilter","reviewFilter"].forEach(id=>{
-  $(id).addEventListener("change",()=>nextCard());
+  $(id).addEventListener("change",()=>{
+    if(id==="chapterSelect")syncMobileChapterSelect();
+    nextCard();
+  });
 });
 $("weightedToggle").addEventListener("change",()=>updatePool());
 $("revealBtn").addEventListener("click",reveal);
@@ -1456,6 +1490,10 @@ $("dataInfoBtn").addEventListener("click",()=>$("dataModal").classList.add("open
 $("closeModalBtn").addEventListener("click",()=>$("dataModal").classList.remove("open"));
 $("dataModal").addEventListener("click",e=>{if(e.target===$("dataModal"))$("dataModal").classList.remove("open")});
 
+if($("mobileChapterSelect"))$("mobileChapterSelect").addEventListener("change",function(e){
+  els.chapter.value=e.target.value;
+  nextCard();
+});
 if($("mobileSearchBtn"))$("mobileSearchBtn").addEventListener("click",mobileSearchDrug);
 if($("mobileSearchInput"))$("mobileSearchInput").addEventListener("keydown",function(e){
   if(e.key==="Enter"){e.preventDefault();mobileSearchDrug();}
