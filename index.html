@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f6f8fb">
-<title>藥學國考｜隨機藥物分類卡 v12.2.2</title>
+<title>藥學國考｜隨機藥物分類卡 v12.3.3.2</title>
 <style>
 :root{
   --navy:#17365d;--blue:#1f4e78;--sky:#dcecf8;--pale:#f4f8fb;--ink:#17212b;
@@ -919,13 +919,13 @@ html,body{
           <button class="btn btn-primary" id="generateBackupCodeBtn" type="button">產生備份碼</button>
           <button class="btn btn-soft" id="copyBackupCodeBtn" type="button">複製備份碼</button>
         </div>
-        <textarea id="backupCodeOutput" readonly placeholder="按「產生備份碼」後，這裡會出現一長串文字；請優先按「複製備份碼」，不要手動只選一部分。"></textarea>
+        <textarea id="backupCodeOutput" readonly autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="按「產生備份碼」後，這裡會出現一長串文字；請優先按「複製備份碼」，不要手動只選一部分。"></textarea>
       </section>
 
       <section class="backup-code-card">
         <h3>② 在另一台裝置還原</h3>
         <p class="mnemonic-library-summary">把完整備份碼貼到下方，按「套用備份碼」。建議從舊裝置按「複製備份碼」後整段貼上；同一張卡若已有口訣，會以備份碼內容為主。</p>
-        <textarea id="backupCodeInput" placeholder="在這裡貼上備份碼"></textarea>
+        <textarea id="backupCodeInput" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="在這裡貼上備份碼"></textarea>
         <div class="backup-code-actions">
           <button class="btn btn-primary" id="restoreBackupCodeBtn" type="button">套用備份碼</button>
           <button class="btn btn-soft" id="clearBackupCodeBtn" type="button">清空欄位</button>
@@ -1236,21 +1236,31 @@ function sanitizeBackupCodeText(text){
   value=value.normalize ? value.normalize("NFKC") : value;
   value=value.replace(/[\u200B-\u200D\uFEFF]/g,"");
 
-  // 如果使用者連同說明文字一起複製，先抓出 PHARM-CARD-BACKUP-v1: 後面的主體。
-  const prefixIndex=value.indexOf(BACKUP_CODE_PREFIX);
-  if(prefixIndex>=0){
-    value=value.slice(prefixIndex+BACKUP_CODE_PREFIX.length);
+  // 情境 1：完整備份碼，直接切掉標頭。
+  const exact=value.indexOf(BACKUP_CODE_PREFIX);
+  if(exact>=0){
+    value=value.slice(exact+BACKUP_CODE_PREFIX.length);
+  }else{
+    // 情境 2：手機、LINE 或備忘錄可能把標頭拆行或換成不同破折號。
+    // 例如 PHARM - CARD - BACKUP - v1 ：
+    const fuzzy=/PHARM[\s\-–—_]*CARD[\s\-–—_]*BACKUP[\s\-–—_]*v?\s*\d+\s*[:：]/i;
+    const m=value.match(fuzzy);
+    if(m && typeof m.index==="number"){
+      value=value.slice(m.index+m[0].length);
+    }
   }
 
   // 移除常見空白、換行、引號與標點；保留 base64/base64url 需要的字元。
   value=value.replace(/\s/g,"");
-  value=value.replace(/[^A-Za-z0-9\-_+/=]/g,"");
 
-  // 若仍混入其他文字，取最長的一段疑似備份碼。
-  const parts=value.match(/[A-Za-z0-9\-_+/=]{24,}/g);
+  // 若使用者連同說明文字一起貼上，先找出最長的一段疑似備份碼。
+  // 注意：必須在移除非 base64 字元之前做，避免說明文字與備份碼黏在一起。
+  const parts=value.match(/[A-Za-z0-9\-_+/=]{40,}/g);
   if(parts && parts.length){
     value=parts.sort(function(a,b){return b.length-a.length;})[0];
   }
+
+  value=value.replace(/[^A-Za-z0-9\-_+/=]/g,"");
   return value;
 }
 
@@ -1289,7 +1299,9 @@ function buildBackupPayload(){
 function encodeBackupPayload(payload){
   const json=JSON.stringify(payload);
   const bytes=new TextEncoder().encode(json);
-  return BACKUP_CODE_PREFIX + bytesToBackupBase64(bytes);
+  const raw=bytesToBackupBase64(bytes);
+  const chunks=raw.match(/.{1,72}/g)||[raw];
+  return BACKUP_CODE_PREFIX + "\n" + chunks.join("\n");
 }
 
 function decodeBackupCode(code){
@@ -1399,7 +1411,7 @@ function restoreBackupCode(){
     }
     setBackupStatus("已完成還原："+backupStatsText(incoming));
   }catch(e){
-    setBackupStatus("還原失敗：請確認備份碼是否完整。建議回到舊裝置按「複製備份碼」，不要手動只選取部分文字。"+(e.message?("（"+e.message+"）"):""), true);
+    setBackupStatus("還原失敗：請確認備份碼是否完整。建議回到舊裝置按「複製備份碼」，整段貼到 LINE／備忘錄，再在這裡貼上。"+(e.message?("（"+e.message+"）"):""), true);
   }
 }
 
